@@ -31,8 +31,7 @@ Route::controller(CreateSuperAdmin::class)->middleware('guest')->group(function(
     Route::get('/create-root', 'index')->name('create.root');
     Route::any('/create-superadmin', 'store')->name('create.superadmin');
 });
-Route::get('api/download-product-license/{license}', [ProductLicenseController::class, 
-'downloadLicensePdf'])->name('web.download.product.license');
+Route::get('api/download-product-license/{license}', [ProductLicenseController::class, 'downloadLicensePdf'])->name('web.download.product.license');
 
 // Change language
 Route::get('/change-language', function () {
