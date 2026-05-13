@@ -85,12 +85,16 @@ class LinuxNodeConfig extends \Google\Model
    * Transparent hugepage support for anonymous memory is disabled.
    */
   public const TRANSPARENT_HUGEPAGE_ENABLED_TRANSPARENT_HUGEPAGE_ENABLED_NEVER = 'TRANSPARENT_HUGEPAGE_ENABLED_NEVER';
+  protected $accurateTimeConfigType = AccurateTimeConfig::class;
+  protected $accurateTimeConfigDataType = '';
   /**
    * cgroup_mode specifies the cgroup mode to be used on the node.
    *
    * @var string
    */
   public $cgroupMode;
+  protected $customNodeInitType = CustomNodeInit::class;
+  protected $customNodeInitDataType = '';
   protected $hugepagesType = HugepagesConfig::class;
   protected $hugepagesDataType = '';
   protected $nodeKernelModuleLoadingType = NodeKernelModuleLoading::class;
@@ -146,6 +150,22 @@ class LinuxNodeConfig extends \Google\Model
   public $transparentHugepageEnabled;
 
   /**
+   * Optional. The accurate time configuration for the node pool.
+   *
+   * @param AccurateTimeConfig $accurateTimeConfig
+   */
+  public function setAccurateTimeConfig(AccurateTimeConfig $accurateTimeConfig)
+  {
+    $this->accurateTimeConfig = $accurateTimeConfig;
+  }
+  /**
+   * @return AccurateTimeConfig
+   */
+  public function getAccurateTimeConfig()
+  {
+    return $this->accurateTimeConfig;
+  }
+  /**
    * cgroup_mode specifies the cgroup mode to be used on the node.
    *
    * Accepted values: CGROUP_MODE_UNSPECIFIED, CGROUP_MODE_V1, CGROUP_MODE_V2
@@ -162,6 +182,23 @@ class LinuxNodeConfig extends \Google\Model
   public function getCgroupMode()
   {
     return $this->cgroupMode;
+  }
+  /**
+   * Optional. Allow users to run arbitrary bash script or container on the
+   * node.
+   *
+   * @param CustomNodeInit $customNodeInit
+   */
+  public function setCustomNodeInit(CustomNodeInit $customNodeInit)
+  {
+    $this->customNodeInit = $customNodeInit;
+  }
+  /**
+   * @return CustomNodeInit
+   */
+  public function getCustomNodeInit()
+  {
+    return $this->customNodeInit;
   }
   /**
    * Optional. Amounts for 2M and 1G hugepages

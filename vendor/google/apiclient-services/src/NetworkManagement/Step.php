@@ -101,6 +101,14 @@ class Step extends \Google\Model
    */
   public const STATE_START_FROM_SERVERLESS_NEG = 'START_FROM_SERVERLESS_NEG';
   /**
+   * Initial state: packet originating from a DMS Private Connection.
+   */
+  public const STATE_START_FROM_DMS_PRIVATE_CONNECTION = 'START_FROM_DMS_PRIVATE_CONNECTION';
+  /**
+   * Initial state: packet originating from a Datastream Private Connection.
+   */
+  public const STATE_START_FROM_DATASTREAM_PRIVATE_CONNECTION = 'START_FROM_DATASTREAM_PRIVATE_CONNECTION';
+  /**
    * Config checking state: verify ingress firewall rule.
    */
   public const STATE_APPLY_INGRESS_FIREWALL_RULE = 'APPLY_INGRESS_FIREWALL_RULE';
@@ -163,6 +171,10 @@ class Step extends \Google\Model
    */
   public const STATE_ARRIVE_AT_VPC_CONNECTOR = 'ARRIVE_AT_VPC_CONNECTOR';
   /**
+   * Forwarding state: arriving at a GKE Pod.
+   */
+  public const STATE_ARRIVE_AT_GKE_POD = 'ARRIVE_AT_GKE_POD';
+  /**
    * Forwarding state: for packets originating from a serverless endpoint
    * forwarded through Direct VPC egress.
    */
@@ -187,6 +199,24 @@ class Step extends \Google\Model
    * `ip_masquerading_skipped` field is populated with the reason.
    */
   public const STATE_SKIP_GKE_POD_IP_MASQUERADING = 'SKIP_GKE_POD_IP_MASQUERADING';
+  /**
+   * Transition state: GKE Ingress Network Policy is skipped. The
+   * `gke_network_policy_skipped` field is populated with the reason.
+   */
+  public const STATE_SKIP_GKE_INGRESS_NETWORK_POLICY = 'SKIP_GKE_INGRESS_NETWORK_POLICY';
+  /**
+   * Transition state: GKE Egress Network Policy is skipped. The
+   * `gke_network_policy_skipped` field is populated with the reason.
+   */
+  public const STATE_SKIP_GKE_EGRESS_NETWORK_POLICY = 'SKIP_GKE_EGRESS_NETWORK_POLICY';
+  /**
+   * Config checking state: verify ingress GKE network policy.
+   */
+  public const STATE_APPLY_INGRESS_GKE_NETWORK_POLICY = 'APPLY_INGRESS_GKE_NETWORK_POLICY';
+  /**
+   * Config checking state: verify egress GKE network policy.
+   */
+  public const STATE_APPLY_EGRESS_GKE_NETWORK_POLICY = 'APPLY_EGRESS_GKE_NETWORK_POLICY';
   /**
    * Transition state: original connection is terminated and a new proxied
    * connection is initiated.
@@ -230,6 +260,8 @@ class Step extends \Google\Model
   protected $cloudRunRevisionDataType = '';
   protected $cloudSqlInstanceType = CloudSQLInstanceInfo::class;
   protected $cloudSqlInstanceDataType = '';
+  protected $datastreamPrivateConnectionType = PrivateConnectionInfo::class;
+  protected $datastreamPrivateConnectionDataType = '';
   protected $deliverType = DeliverInfo::class;
   protected $deliverDataType = '';
   /**
@@ -240,6 +272,8 @@ class Step extends \Google\Model
   public $description;
   protected $directVpcEgressConnectionType = DirectVpcEgressConnectionInfo::class;
   protected $directVpcEgressConnectionDataType = '';
+  protected $dmsPrivateConnectionType = PrivateConnectionInfo::class;
+  protected $dmsPrivateConnectionDataType = '';
   protected $dropType = DropInfo::class;
   protected $dropDataType = '';
   protected $endpointType = EndpointInfo::class;
@@ -252,6 +286,10 @@ class Step extends \Google\Model
   protected $forwardingRuleDataType = '';
   protected $gkeMasterType = GKEMasterInfo::class;
   protected $gkeMasterDataType = '';
+  protected $gkeNetworkPolicyType = GkeNetworkPolicyInfo::class;
+  protected $gkeNetworkPolicyDataType = '';
+  protected $gkeNetworkPolicySkippedType = GkeNetworkPolicySkippedInfo::class;
+  protected $gkeNetworkPolicySkippedDataType = '';
   protected $gkePodType = GkePodInfo::class;
   protected $gkePodDataType = '';
   protected $googleServiceType = GoogleServiceInfo::class;
@@ -404,6 +442,22 @@ class Step extends \Google\Model
     return $this->cloudSqlInstance;
   }
   /**
+   * Display information of a Datastream Private Connection.
+   *
+   * @param PrivateConnectionInfo $datastreamPrivateConnection
+   */
+  public function setDatastreamPrivateConnection(PrivateConnectionInfo $datastreamPrivateConnection)
+  {
+    $this->datastreamPrivateConnection = $datastreamPrivateConnection;
+  }
+  /**
+   * @return PrivateConnectionInfo
+   */
+  public function getDatastreamPrivateConnection()
+  {
+    return $this->datastreamPrivateConnection;
+  }
+  /**
    * Display information of the final state "deliver" and reason.
    *
    * @param DeliverInfo $deliver
@@ -450,6 +504,22 @@ class Step extends \Google\Model
   public function getDirectVpcEgressConnection()
   {
     return $this->directVpcEgressConnection;
+  }
+  /**
+   * Display information of a DMS Private Connection.
+   *
+   * @param PrivateConnectionInfo $dmsPrivateConnection
+   */
+  public function setDmsPrivateConnection(PrivateConnectionInfo $dmsPrivateConnection)
+  {
+    $this->dmsPrivateConnection = $dmsPrivateConnection;
+  }
+  /**
+   * @return PrivateConnectionInfo
+   */
+  public function getDmsPrivateConnection()
+  {
+    return $this->dmsPrivateConnection;
   }
   /**
    * Display information of the final state "drop" and reason.
@@ -548,6 +618,39 @@ class Step extends \Google\Model
   public function getGkeMaster()
   {
     return $this->gkeMaster;
+  }
+  /**
+   * Display information of a GKE Network Policy.
+   *
+   * @param GkeNetworkPolicyInfo $gkeNetworkPolicy
+   */
+  public function setGkeNetworkPolicy(GkeNetworkPolicyInfo $gkeNetworkPolicy)
+  {
+    $this->gkeNetworkPolicy = $gkeNetworkPolicy;
+  }
+  /**
+   * @return GkeNetworkPolicyInfo
+   */
+  public function getGkeNetworkPolicy()
+  {
+    return $this->gkeNetworkPolicy;
+  }
+  /**
+   * Display information of the reason why GKE Network Policy evaluation was
+   * skipped.
+   *
+   * @param GkeNetworkPolicySkippedInfo $gkeNetworkPolicySkipped
+   */
+  public function setGkeNetworkPolicySkipped(GkeNetworkPolicySkippedInfo $gkeNetworkPolicySkipped)
+  {
+    $this->gkeNetworkPolicySkipped = $gkeNetworkPolicySkipped;
+  }
+  /**
+   * @return GkeNetworkPolicySkippedInfo
+   */
+  public function getGkeNetworkPolicySkipped()
+  {
+    return $this->gkeNetworkPolicySkipped;
   }
   /**
    * Display information of a Google Kubernetes Engine Pod.
@@ -851,15 +954,19 @@ class Step extends \Google\Model
    * START_FROM_CLOUD_FUNCTION, START_FROM_APP_ENGINE_VERSION,
    * START_FROM_CLOUD_RUN_REVISION, START_FROM_STORAGE_BUCKET,
    * START_FROM_PSC_PUBLISHED_SERVICE, START_FROM_SERVERLESS_NEG,
-   * APPLY_INGRESS_FIREWALL_RULE, APPLY_EGRESS_FIREWALL_RULE, APPLY_ROUTE,
-   * APPLY_FORWARDING_RULE, ANALYZE_LOAD_BALANCER_BACKEND, SPOOFING_APPROVED,
-   * ARRIVE_AT_INSTANCE, ARRIVE_AT_INTERNAL_LOAD_BALANCER,
-   * ARRIVE_AT_EXTERNAL_LOAD_BALANCER, ARRIVE_AT_HYBRID_SUBNET,
-   * ARRIVE_AT_VPN_GATEWAY, ARRIVE_AT_VPN_TUNNEL,
+   * START_FROM_DMS_PRIVATE_CONNECTION,
+   * START_FROM_DATASTREAM_PRIVATE_CONNECTION, APPLY_INGRESS_FIREWALL_RULE,
+   * APPLY_EGRESS_FIREWALL_RULE, APPLY_ROUTE, APPLY_FORWARDING_RULE,
+   * ANALYZE_LOAD_BALANCER_BACKEND, SPOOFING_APPROVED, ARRIVE_AT_INSTANCE,
+   * ARRIVE_AT_INTERNAL_LOAD_BALANCER, ARRIVE_AT_EXTERNAL_LOAD_BALANCER,
+   * ARRIVE_AT_HYBRID_SUBNET, ARRIVE_AT_VPN_GATEWAY, ARRIVE_AT_VPN_TUNNEL,
    * ARRIVE_AT_INTERCONNECT_ATTACHMENT, ARRIVE_AT_VPC_CONNECTOR,
-   * DIRECT_VPC_EGRESS_CONNECTION, SERVERLESS_EXTERNAL_CONNECTION,
-   * NGFW_PACKET_INSPECTION, NAT, SKIP_GKE_POD_IP_MASQUERADING,
-   * PROXY_CONNECTION, DELIVER, DROP, FORWARD, ABORT, VIEWER_PERMISSION_MISSING
+   * ARRIVE_AT_GKE_POD, DIRECT_VPC_EGRESS_CONNECTION,
+   * SERVERLESS_EXTERNAL_CONNECTION, NGFW_PACKET_INSPECTION, NAT,
+   * SKIP_GKE_POD_IP_MASQUERADING, SKIP_GKE_INGRESS_NETWORK_POLICY,
+   * SKIP_GKE_EGRESS_NETWORK_POLICY, APPLY_INGRESS_GKE_NETWORK_POLICY,
+   * APPLY_EGRESS_GKE_NETWORK_POLICY, PROXY_CONNECTION, DELIVER, DROP, FORWARD,
+   * ABORT, VIEWER_PERMISSION_MISSING
    *
    * @param self::STATE_* $state
    */

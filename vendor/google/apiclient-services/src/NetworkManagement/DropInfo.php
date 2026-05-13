@@ -526,10 +526,18 @@ class DropInfo extends \Google\Model
    */
   public const CAUSE_HYBRID_SUBNET_NO_ROUTE = 'HYBRID_SUBNET_NO_ROUTE';
   /**
+   * Packet is dropped by GKE Network Policy.
+   */
+  public const CAUSE_GKE_NETWORK_POLICY = 'GKE_NETWORK_POLICY';
+  /**
    * Packet is dropped because there is no valid matching route from the network
    * of the Google-managed service to the destination.
    */
   public const CAUSE_NO_VALID_ROUTE_FROM_GOOGLE_MANAGED_NETWORK_TO_DESTINATION = 'NO_VALID_ROUTE_FROM_GOOGLE_MANAGED_NETWORK_TO_DESTINATION';
+  /**
+   * Packet is dropped due to no running instance found for private connection.
+   */
+  public const CAUSE_PRIVATE_CONNECTION_NO_RUNNING_INSTANCE = 'PRIVATE_CONNECTION_NO_RUNNING_INSTANCE';
   /**
    * Cause that the packet is dropped.
    *
@@ -642,8 +650,9 @@ class DropInfo extends \Google\Model
    * CLOUD_NAT_PROTOCOL_UNSUPPORTED, L2_INTERCONNECT_UNSUPPORTED_PROTOCOL,
    * L2_INTERCONNECT_UNSUPPORTED_PORT, L2_INTERCONNECT_DESTINATION_IP_MISMATCH,
    * NCC_ROUTE_WITHIN_HYBRID_SUBNET_UNSUPPORTED, HYBRID_SUBNET_REGION_MISMATCH,
-   * HYBRID_SUBNET_NO_ROUTE,
-   * NO_VALID_ROUTE_FROM_GOOGLE_MANAGED_NETWORK_TO_DESTINATION
+   * HYBRID_SUBNET_NO_ROUTE, GKE_NETWORK_POLICY,
+   * NO_VALID_ROUTE_FROM_GOOGLE_MANAGED_NETWORK_TO_DESTINATION,
+   * PRIVATE_CONNECTION_NO_RUNNING_INSTANCE
    *
    * @param self::CAUSE_* $cause
    */
