@@ -39,8 +39,10 @@ jobs:
               --exclude='tests' \
               --exclude='.env' \
               --exclude='storage' \
-              -czf release.tar.gz .
-
+              --exclude='public/hot' \
+              --warning=no-file-changed \
+              -czf release.tar.gz . || [ $? -eq 1 ]
+              
       - name: Upload release to DreamHost
         uses: appleboy/scp-action@v0.1.7
         with:
