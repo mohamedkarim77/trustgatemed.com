@@ -1,0 +1,67 @@
+name: Deploy to DreamHost
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create release archive
+        run: |
+          tar --exclude='.git' \
+              --exclude='node_modules' \
+              --exclude='tests' \
+              --exclude='.env' \
+              --exclude='storage' \
+              -czf release.tar.gz .
+
+      - name: Upload release to DreamHost
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: release.tar.gz
+          target: ~/deploys/incoming/
+
+      - name: Run deploy script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: bash ~/deploy.sh
+
+      - name: Notify success
+        if: success()
+        run: echo "Deployed successfully to trustgatemed.com"
+
+      - name: Notify failure
+        if: failure()
+        run: echo "Deploy failed — check logs"
